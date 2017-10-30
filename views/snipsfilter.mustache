@@ -1,0 +1,40 @@
+<div class="container">
+  <h3>Filtered Snips</h3>
+
+  {{#snips}}
+  <ul class="list-unstyled one-snip">
+    <li class="snip-title"><b><a href="/app/editSnip/{{_id}}"> {{title}}</a></b></li>
+    <li class="snip-body">{{body}}</li>
+    <li><b>Language: </b>{{language}}</li>
+    <li>
+      <ul class="list-unstyled">
+        <li><b>Tags</b></li>
+        {{#tags}}
+        <li class="tag">{{.}}</li>
+        {{/tags}}
+      </ul>
+    </li>
+    <li>
+      <ul class="list-unstyled notes-list">
+        <li><b>Notes</b></li>
+        {{#notes}}
+        <li>{{.}}</li>
+        {{/notes}}
+      </ul>
+    </li>
+
+    <li>
+      <form class="form-group" action="/app/editSnip/{{_id}}" method="get">
+      <input type="submit" name="edit" value="Edit this Snip" class="form-control btn btn-primary">
+    </form>
+  </li>
+  <li>
+    <form class="form-group" action="/app/snip/deleteSnip/" method="post">
+      <input type="hidden" name="id" value="{{_id}}">
+      <input type="submit" name="delete" value="Delete this Snip" id="delete-filtered" class="delete-post-btn form-control btn btn-primary">
+    </form>
+  </li>
+  </ul>
+  {{/snips}}
+
+</div>

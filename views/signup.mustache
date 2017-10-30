@@ -1,0 +1,15 @@
+<section class="container form-div">
+  <h3>Sign up for CodeHOOD!</h3>
+  {{#message}}
+  <p class="bg-warning">{{message}}</p>
+  {{/message}}
+
+  <form class="form-group sign-in" action="/app/user/signup" method="POST">
+    <input class="form-control" type="text" name="firstname" value="" placeholder="What's your first name?">
+    <input class="form-control" type="text" name="username" value="" placeholder="Pick a username.">
+    <input class="form-control" type="password" name="password" value="" placeholder="Pick a password.">
+    <input class="form-control" type="password" name="passconf" value="" placeholder="Confirm password.">
+    <input class="form-control btn btn-primary" type="submit" name="signup" value="Sign up!">
+  </form>
+  <h5>I'm already a CodeHOODER. Take me to the <a href="/app/user/login">Log In page!</a></h5>
+</section>

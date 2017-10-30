@@ -1,14 +1,13 @@
 const mongoose = require('mongoose');
 
-//TODO: is bluebird necessary?
-mongoose.Promise = require('bluebird');
-
 const userSchema = new mongoose.Schema({
-
-  // username: {type: String, required: true, unique: true},
-  name: {type: String, required: true, unique: false},
-  password: {type: String, required: true, unique: false},
-
+  username: {type: String, required: true, unique: true},
+  firstName: {type: String, required: true},
+  password: {
+    iterations: Number,
+    salt: String,
+    hash: String
+  }
 });
 
 const User = mongoose.model('User', userSchema);

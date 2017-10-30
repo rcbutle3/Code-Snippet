@@ -1,64 +1,66 @@
 const express = require('express');
+const app = express();
 const mustache = require('mustache-express');
-const bodyparser = require('body-parser');
+const path = require('path');
+const bodyParser = require('body-parser');
+const validator = require('express-validator');
 const session = require('express-session');
+const parseurl = require('parseurl');
 const mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
-const Snippets = require('./models/snippetSchema.js');
-const Users = require('./models/userSchema.js')
-const server = express();
+const routes = require('./router');
 
+//models
+const User = require('./models/user');
+const Snip = require('./models/snippet');
 
-server.engine('mustache', mustache());
-server.set('views', './views')
-server.set('view engine', 'mustache');
-server.use(bodyparser.urlencoded({ extended: false }));
-server.use(session({
-      secret: 'Hair Sugar',
-      resave: false,
-      saveUninitialized: true
-  }));
-mongoose.connect('mongodb://localhost:27017/snippetCollection');
+//mongo setup
+let mongoUrl;
+const env = process.env.NODE_ENV || 'development';
 
+if(env === 'production') {
+  mongoUrl = process.env.MONGODB_URI;
+} else {
+  mongoUrl = require('./config.json')[env].mongoUrl;
+}
 
-    server.get('/login', function(req, res){
-        res.render('login');
-    });
+mongoose.connect(mongoUrl);
 
-    server.get('/register', function(req, res){
+//templates
+app.engine('mustache', mustache());
+app.set('view engine', 'mustache');
+app.set('views', path.join(__dirname, 'views'));
+app.set('layout', 'layout');
 
-      res.render('register', {
+//middleware
+app.use('/static', express.static('public'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(validator());
 
-    });
+app.use(session({
+  secret: 'keyboard cats',
+  resave: false,
+  saveUninitialized: true
+}));
 
-    server.get('/home', function(req, res){
-      Snippets.find().then(function (snippets){
-        res.render('home', {
-            snippets: snippets,
-            // name: user,
-        });
-      });
-    });
+//require user to be logged in
+if (env !== 'test') {
+  app.use(function(req, res, next){
+    let pathname = parseurl(req).pathname
+      , sess = req.session;
 
-    server.get('/display/:snippet_id', function(req, res){
+    if (!sess.username && (!pathname.includes('/app/user'))){
+      res.redirect('/app/user/login');
+    } else {
+      next();
+    }
 
-          const id =  req.params.snippet_id;
-
-          Snippets.findOne({
-            _id: id
-          }).then(function(results){
-
-            res.render('display', {
-                snippet: results,
-            });
-          });
-      });
-
-    //add snip page
-    server.get('/add', function(req, res){
-      res.render('add');
-    });
-
-  server.listen(5500, function(){
-    console.log("Snip Snip! http://localhost:5500/login");
   });
+}
+
+module.exports = app;
+
+routes(app);
+
+app.listen(process.env.PORT || 3000);
